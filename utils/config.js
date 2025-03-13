@@ -5,8 +5,8 @@ const exec = promisify(require("node:child_process").exec);
 
 (async () => {
 	const AD_APP_ID = "ca-app-pub-5911839694379275~4255791238";
-	const ID_PAID = "com.lucicodepro.acode";
-	const ID_FREE = "com.lucicode.acode";
+	const ID_PAID = "com.lucicode.acode";
+	const ID_FREE = "com.lucicodefree.acode";
 
 	const arg = process.argv[2];
 	const arg2 = process.argv[3];
