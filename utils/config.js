@@ -82,7 +82,13 @@ const exec = promisify(require("node:child_process").exec);
 					console.log("DONE! Installing admob-plus-cordova");
 				} else {
 					console.log(`|--- Removing Admob ---|`);
-					await exec(`cordova plugin remove cordova-plugin-consent --save`);
+					const { stdout } = await exec("cordova plugin list");
+          if (stdout.includes("cordova-plugin-consent")) {
+              await exec("cordova plugin remove cordova-plugin-consent --save");
+              console.log("DONE! Removing cordova-plugin-consent");
+          } else {
+              console.log("cordova-plugin-consent not found, bypassing deletion.");
+          }
 					await exec(`cordova plugin remove admob-plus-cordova --save`);
 					console.log("DONE! Removing admob-plus-cordova");
 				}
