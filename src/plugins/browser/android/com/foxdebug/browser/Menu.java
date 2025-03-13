@@ -1,4 +1,4 @@
-package com.foxdebug.browser;
+package com.lucicode.browser;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -15,8 +15,8 @@ import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import com.foxdebug.acode.R;
-import com.foxdebug.system.Ui;
+import com.lucicode.acode.R;
+import com.lucicode.system.Ui;
 
 public class Menu extends PopupWindow {
 
