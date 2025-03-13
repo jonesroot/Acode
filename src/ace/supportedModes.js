@@ -173,7 +173,7 @@ const modeList = {
 	Text: "txt",
 	Textile: "textile",
 	Toml: "toml",
-	TSV: "TSV",
+	TSV: "tsv",
 	TSX: "tsx",
 	Turtle: "ttl",
 	Twig: "twig|swig",
