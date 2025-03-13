@@ -4,58 +4,63 @@ import actionStack from "lib/actionStack";
 import EditorFile from "lib/editorFile";
 import helpers from "utils/helpers";
 
+
 export default function Problems() {
-	const $page = Page(strings["problems"]);
+	const $page = Page(strings.problems);
 	/**@type {EditorFile[]} */
 	const files = editorManager.files;
-	const $content = <div id="problems"></div>;
+	const $content = document.createElement("div");
+	$content.id = "problems";
 
 	files.forEach((file) => {
 		if (file.type !== "editor") return;
+
 		/**@type {[]} */
-		const annotations = file.session?.getAnnotations();
-		if (!annotations.length) return;
+		const annotations = file.session?.getAnnotations() || [];
+		if (annotations.length === 0) return;
 
-		$content.append(
-			<details open="true" className="single-file">
-				<summary>{`${file.name} (${annotations.length})`}</summary>
-				<div className="problems">
-					{annotations.map((annotation) => {
-						let icon = "info";
+		const details = document.createElement("details");
+		details.className = "single-file";
+		details.open = true;
 
-						switch (annotation.type) {
-							case "error":
-								icon = "cancel";
-								break;
+		const summary = document.createElement("summary");
+		summary.textContent = `${file.name} (${annotations.length})`;
+		details.appendChild(summary);
 
-							case "warning":
-								icon = "warningreport_problem";
-								break;
+		const problemsDiv = document.createElement("div");
+		problemsDiv.className = "problems";
 
-							default:
-								break;
-						}
+		annotations.forEach((annotation) => {
+			let icon = "info";
 
-						return (
-							<div
-								className="problem"
-								data-action="goto"
-								data-file-id={file.id}
-								annotation={annotation}
-							>
-								<span className={`icon ${icon}`}></span>
-								<span data-type={annotation.type} className="problem-message">
-									{annotation.text}
-								</span>
-								<span className="problem-line">
-									{annotation.row + 1}:{annotation.column + 1}
-								</span>
-							</div>
-						);
-					})}
-				</div>
-			</details>,
-		);
+			switch (annotation.type) {
+				case "error":
+					icon = "cancel";
+					break;
+				case "warning":
+					icon = "warningreport_problem";
+					break;
+				default:
+					break;
+			}
+
+			const problemDiv = document.createElement("div");
+			problemDiv.className = "problem";
+			problemDiv.dataset.action = "goto";
+			problemDiv.dataset.fileId = file.id;
+			problemDiv.dataset.annotation = JSON.stringify(annotation);
+
+			problemDiv.innerHTML = `
+				<span class="icon ${icon}"></span>
+				<span data-type="${annotation.type}" class="problem-message">${annotation.text}</span>
+				<span class="problem-line">${annotation.row + 1}:${annotation.column + 1}</span>
+			`;
+
+			problemsDiv.appendChild(problemDiv);
+		});
+
+		details.appendChild(problemsDiv);
+		$content.appendChild(details);
 	});
 
 	$content.addEventListener("click", clickHandler);
@@ -78,12 +83,14 @@ export default function Problems() {
 	 * @param {MouseEvent} e
 	 */
 	function clickHandler(e) {
-		const $target = e.target;
-		const { action } = $target.dataset;
+		const $target = e.target.closest(".problem");
+		if (!$target) return;
+
+		const { action, fileId } = $target.dataset;
 
 		if (action === "goto") {
-			const { fileId } = $target.dataset;
-			const annotation = $target.annotation;
+			const annotation = JSON.parse($target.dataset.annotation);
+			if (!annotation) return;
 
 			editorManager.switchFile(fileId);
 			editorManager.editor.gotoLine(annotation.row + 1, annotation.column);
