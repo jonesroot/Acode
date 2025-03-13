@@ -3,7 +3,7 @@
     xmlns="http://www.w3.org/ns/widgets"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>Acode</name>
+    <name>LuciCode</name>
     <description>
         Light weight code editor and web IDE for android.
     </description>
@@ -63,7 +63,7 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="acode" />
+                <data android:scheme="LuciCode" />
             </intent-filter>
         </config-file>
 
