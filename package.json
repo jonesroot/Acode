@@ -17,7 +17,7 @@
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Lucifer (Ajit Kumar)",
+  "author": "Lucifer",
   "license": "MIT",
   "cordova": {
     "plugins": {
