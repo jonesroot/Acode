@@ -1,8 +1,8 @@
 {
-  "name": "com.foxdebug.acode",
-  "displayName": "Acode",
-  "version": "1.11.0",
-  "description": "Acode is a code editor for android",
+  "name": "com.luci.acode",
+  "displayName": "LuciCode",
+  "version": "1.0.1",
+  "description": "LuciCode is an app Fork/Clone from Acode, a code editor for android",
   "scripts": {
     "lang": "node ./utils/lang.js",
     "build": "sh utils/scripts/build.sh",
@@ -17,7 +17,7 @@
   "keywords": [
     "ecosystem:cordova"
   ],
-  "author": "Foxdebug (Ajit Kumar)",
+  "author": "Lucifer (Ajit Kumar)",
   "license": "MIT",
   "cordova": {
     "plugins": {
@@ -42,12 +42,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/deadlyjack/acode.git"
+    "url": "git+https://github.com/jonesroot/acode.git"
   },
   "bugs": {
-    "url": "https://github.com/deadlyjack/acode/issues"
+    "url": "https://github.com/jonesroot/acode/issues"
   },
-  "homepage": "https://github.com/deadlyjack/acode#readme",
+  "homepage": "https://github.com/jonesroot/acode#readme",
   "devDependencies": {
     "@babel/cli": "^7.24.6",
     "@babel/core": "^7.24.6",
