@@ -5,12 +5,12 @@ const exec = promisify(require("node:child_process").exec);
 
 (async () => {
 	const AD_APP_ID = "ca-app-pub-5911839694379275~4255791238";
-	const CONFIG_ID = /id="([a-z.]+")/;
-	const HTML_ID = /<title>[a-z.]+<\/title>/;
-	const ID_PAID = "com.foxdebug.acode";
-	const ID_FREE = "com.foxdebug.acodefree";
+	const ID_PAID = "com.lucicodepro.acode";
+	const ID_FREE = "com.lucicode.acode";
+
 	const arg = process.argv[2];
 	const arg2 = process.argv[3];
+
 	const platformsDir = path.resolve(__dirname, "../platforms/");
 	const babelrcpath = path.resolve(__dirname, "../.babelrc");
 	const configpath = path.resolve(__dirname, "../config.xml");
@@ -32,22 +32,19 @@ const exec = promisify(require("node:child_process").exec);
 </resources>`;
 
 	try {
-		let babelrcText = fs.readFileSync(babelrcpath, "utf-8");
+		let babelrc = JSON.parse(fs.readFileSync(babelrcpath, "utf-8"));
 		let config = fs.readFileSync(configpath, "utf-8");
 		let html = fs.readFileSync(htmlpath, "utf-8");
 		let platforms = fs
 			.readdirSync(platformsDir)
 			.filter((file) => !file.startsWith("."));
+
 		let logo, id, currentId;
 
-		currentId = /id="([a-z.]+)"/.exec(config)[1];
-		babelrc = JSON.parse(babelrcText);
+		currentId = /id="([^"]+)"/.exec(config)?.[1];
+		if (!currentId) throw new Error("Failed to find ID in config.xml");
 
-		if (arg === "d") {
-			babelrc.compact = false;
-		} else if (arg === "p") {
-			babelrc.compact = true;
-		}
+		babelrc.compact = arg === "p";
 
 		if (arg2 === "free") {
 			logo = logoTextFree;
@@ -57,57 +54,54 @@ const exec = promisify(require("node:child_process").exec);
 			id = ID_PAID;
 		}
 
-		fs.writeFileSync(babelrcpath, babelrcText, "utf8");
+		fs.writeFileSync(babelrcpath, JSON.stringify(babelrc, undefined, 2), "utf8");
 
 		if (currentId !== id) {
-			const promises = [];
+			console.log(`Change ID from ${currentId} to ${id} ..`);
 
-			html = html.replace(HTML_ID, `<title>${id}</title>`);
-			config = config.replace(CONFIG_ID, `id="${id}"`);
-			babelrcText = JSON.stringify(babelrc, undefined, 2);
+			html = html.replace(/<title>[^<]+<\/title>/, `<title>${id}</title>`);
+			config = config.replace(/id="[^"]+"/, `id="${id}"`);
 
 			fs.writeFileSync(htmlpath, html, "utf8");
 			fs.writeFileSync(logopath, logo, "utf8");
 			fs.writeFileSync(configpath, config, "utf8");
 
-			for (let platform of platforms) {
-				if (!platform) continue;
+			const promises = platforms.map(async (platform) => {
+				if (!platform) return;
 
-				promises.push(
-					(async () => {
-						console.log(
-							`|--- Preparing platform ${platform.toUpperCase()} ---|`,
-						);
+				console.log(`|--- Preparing platform ${platform.toUpperCase()} ---|`);
 
-						if (id === ID_FREE) {
-							console.log(`|--- Installing Admob ---|`);
-							await exec(
-								`cordova plugin add cordova-plugin-consent@2.4.0 --save`,
-							);
-							await exec(
-								`cordova plugin add admob-plus-cordova@1.28.0 --save --variable APP_ID_ANDROID="${AD_APP_ID}" --variable PLAY_SERVICES_VERSION="21.5.0"`,
-							);
-							console.log("DONE! Installing admob-plus-cordova");
-						} else {
-							console.log(`|--- Removing Admob ---|`);
-							await exec(`cordova plugin remove cordova-plugin-consent --save`);
-							await exec(`cordova plugin remove admob-plus-cordova --save`);
-							console.log("DONE! Removing admob-plus-cordova");
-						}
+				if (id === ID_FREE) {
+					console.log(`|--- Installing Admob ---|`);
+					await exec(
+						`cordova plugin add cordova-plugin-consent@2.4.0 --save`
+					);
+					await exec(
+						`cordova plugin add admob-plus-cordova@1.28.0 --save --variable APP_ID_ANDROID="${AD_APP_ID}" --variable PLAY_SERVICES_VERSION="21.5.0"`
+					);
+					console.log("DONE! Installing admob-plus-cordova");
+				} else {
+					console.log(`|--- Removing Admob ---|`);
+					await exec(`cordova plugin remove cordova-plugin-consent --save`);
+					await exec(`cordova plugin remove admob-plus-cordova --save`);
+					console.log("DONE! Removing admob-plus-cordova");
+				}
 
-						console.log(`|--- Reinstalling platform ---|`);
-						const { stderr } = await exec(`yarn clean`);
-						if (stderr) console.error(stderr);
-						else console.log("DONE! Reinstalling platform");
-					})(),
-				);
-			}
+				console.log(`|--- Reinstalling platform ---|`);
+				const { stderr } = await exec(`yarn clean`);
+				if (stderr) console.error(stderr);
+				else console.log("DONE! Reinstalling platform");
+			});
 
 			await Promise.all(promises);
+		} else {
+			console.log("ID does not change, no changes were made.");
 		}
+
+		console.log("✅ DONE!");
 		process.exit(0);
 	} catch (error) {
-		console.error(error);
+		console.error("❌ There is an error:", error);
 		process.exit(1);
 	}
 })();
