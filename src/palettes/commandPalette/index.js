@@ -22,13 +22,15 @@ export default async function commandPalette() {
 			 */
 			const item = (recentlyUsed) => ({
 				value: name,
-				text: `<span ${recentlyUsed ? `data-str='${strings["recently used"]}'` : ""}>${description ?? name}</span><small>${bindKey?.win ?? ""}</small>`,
+				text: `<span ${recentlyUsed ? `data-str='${strings["recently used"]}'` : ""}>${description ?? name}</span>${
+					bindKey?.win ? `<small>${bindKey.win}</small>` : ""
+				}`,
 			});
 			if (recentCommands.commands.includes(name)) {
 				hints.unshift(item(true));
 				return;
 			}
-			hints.push(item());
+			hints.push(item(false));
 		});
 
 		return hints;
@@ -38,19 +40,19 @@ export default async function commandPalette() {
 		const command = commands.find(({ name }) => name === value);
 		if (!command) return;
 		recentCommands.push(value);
-		command.exec(editorManager.editor);
+		command.exec?.(editorManager.editor);
 	}
 }
 
 function RecentlyUsedCommands() {
+	let commands = helpers.parseJSON(localStorage.getItem("recentlyUsedCommands")) || [];
+
 	return {
 		/**
 		 * @returns {string[]}
 		 */
 		get commands() {
-			return (
-				helpers.parseJSON(localStorage.getItem("recentlyUsedCommands")) || []
-			);
+			return commands;
 		},
 		/**
 		 * Saves command to recently used commands
@@ -58,14 +60,13 @@ function RecentlyUsedCommands() {
 		 * @returns {void}
 		 */
 		push(command) {
-			const { commands } = this;
-			if (commands.length > 10) {
-				commands.pop();
-			}
 			if (commands.includes(command)) {
 				commands.splice(commands.indexOf(command), 1);
 			}
 			commands.unshift(command);
+			if (commands.length > 10) {
+				commands = commands.slice(0, 10);
+			}
 			localStorage.setItem("recentlyUsedCommands", JSON.stringify(commands));
 		},
 	};
