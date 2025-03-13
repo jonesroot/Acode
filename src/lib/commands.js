@@ -38,27 +38,27 @@ export default {
 		).length;
 		if (unsavedFiles) {
 			const confirmation = await confirm(
-				strings["warning"],
+				strings.warning,
 				strings["unsaved files warning"],
 			);
 			if (!confirmation) return;
-			const option = await select(strings["select"], [
+			const option = await select(strings.select, [
 				["save", strings["save all"]],
 				["close", strings["close all"]],
-				["cancel", strings["cancel"]],
+				["cancel", strings.cancel],
 			]);
 			if (option === "cancel") return;
 
 			if (option === "save") {
 				const doSave = await confirm(
-					strings["warning"],
+					strings.warning,
 					strings["save all warning"],
 				);
 				if (!doSave) return;
 				save = true;
 			} else {
 				const doClose = await confirm(
-					strings["warning"],
+					strings.warning,
 					strings["close all warning"],
 				);
 				if (!doClose) return;
@@ -77,7 +77,7 @@ export default {
 	},
 	async "save-all-changes"() {
 		const doSave = await confirm(
-			strings["warning"],
+			strings.warning,
 			strings["save all changes warning"],
 		);
 		if (!doSave) return;
